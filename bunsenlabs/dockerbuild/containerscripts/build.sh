@@ -7,10 +7,11 @@ mkdir -p /tmp/build
 cp -r -- /mnt/package /tmp/build
 cd /tmp/build/package
 
-arch=$(dpkg --print-architecture)
-lastref=$(git describe --tags --abbrev=0)
-lastref=${lastref%-*}
-gitbranch=$(git rev-parse --abbrev-ref HEAD)
+xgitclean
+
+arch=$(xarch)
+lastref=$(xupstreamversion)
+gitbranch=$(xcurrentbranch)
 pkgbase=$(grep ^Source: debian/control|cut -d" " -f2)
 
 git archive --format=tgz "$gitbranch" > ../"${pkgbase}_${lastref}.orig.tar.gz"

@@ -63,10 +63,11 @@ class PackageSource:
         return f'{self.release_debian_distro}:{self.control_hash}'
 
 class PackageBuilder:
-    def __init__(self, source: PackageSource, output_dir: str):
+    def __init__(self, source: PackageSource, output_dir: str, architecture: str = 'amd64'):
         self.__source = source
         self.__output_dir = output_dir
         self.__docker = docker.from_env()
+        self.__architecture = architecture
         logger.info('Source ID for this build: %s', self.source.source_id)
 
     def create_dependency_image(self):
@@ -89,8 +90,7 @@ class PackageBuilder:
         if not (status.get('Error') is None and status.get('StatusCode') == 0):
             logger.error('Container failed with non-zero exit status: %s', status.get('Error'))
             raise Exception('Container run failed')
-        logger.info('Commiting image to repository using tag %s', image_tag)
-        container.commit(repository='blsrc', tag=image_tag)
+        container.commit(repository='blsrc')
         return self.find_dependency_image()
 
     def find_dependency_image(self):
@@ -134,24 +134,20 @@ class PackageBuilder:
         return self.__source
 
     @property
-    def docker_dependency_layer_id(self):
-        return hash(self.__source.release_version)
-
-    @property
     def docker_labels(self):
         return {
+            'BL_BUILD_ARCH': self.architecture,
             'BL_SOURCE_ID': self.source.source_id,
-            'BL_SOURCE_VERSION': self.source.release_version,
             'BL_SOURCE_NAME': self.source.name,
+            'BL_SOURCE_VERSION': self.source.release_version,
         }
 
     @property
     def docker_dependency_image_filter(self):
-        return {
-            'label': [
-                f'BL_SOURCE_ID={self.source.source_id}'
-            ]
-        }
+        return { 'label': [
+            f'BL_SOURCE_ID={self.source.source_id}',
+            f'BL_BUILD_ARCH={self.architecture}',
+        ]}
 
     @property
     def docker_volumes(self):
@@ -167,8 +163,15 @@ class PackageBuilder:
         }
 
     @property
+    def architecture(self):
+        return self.__architecture
+
+    @property
     def docker_base_image(self):
-        return 'debian:{}'.format(self.source.release_debian_distro)
+        prefix = ''
+        if self.architecture == 'i386':
+            prefix = 'i386/'
+        return '{}debian:{}'.format(prefix, self.source.release_debian_distro)
 
 def build(opts):
     logger.info('Beginning package build.')
