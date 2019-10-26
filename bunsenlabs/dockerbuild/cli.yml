@@ -1,0 +1,11 @@
+program_description: |
+  Docker-based builder for Debian packages
+
+options:
+  - names: [ '--source', '-s']
+    required: True
+    help: |
+      Package source directory
+  - names: [ '--output', '-o' ]
+    help: |
+      Output directory. Will be created if it does not exist.
