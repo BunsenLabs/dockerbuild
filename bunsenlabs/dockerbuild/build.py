@@ -86,7 +86,7 @@ class PackageBuilder:
                 volumes = self.docker_volumes,
         )
         logger.info('Container %s launched, waiting for exit...', container.id)
-        status = container.wait(timeout=900)
+        status = container.wait(timeout=3600):
         if not (status.get('Error') is None and status.get('StatusCode') == 0):
             logger.error('Container failed with non-zero exit status: %s', status.get('Error'))
             raise Exception('Container run failed')
@@ -118,7 +118,7 @@ class PackageBuilder:
                 volumes=volumes
         )
         logging.info('Container launched: %s', container.id)
-        status = container.wait(timeout=900)
+        status = container.wait(timeout=3600)
         if not (status.get('Error') is None and status.get('StatusCode') == 0):
             logger.error('Container failed with exit status: %d', status.get('StatusCode'))
             logger.error('Error string: %s', status.get('Error'))
