@@ -1,11 +1,14 @@
 from typing import Optional
 
 RELEASE_MAP = {
-    'bunsen-hydrogen' : 'jessie',
-    'hydrogen'        : 'jessie', # not used
-    'helium'          : 'stretch',
-    'lithium'         : 'buster',
-    'beryllium'       : 'buzz',
+    'beryllium'         : 'buzz',
+    'bunsen-hydrogen'   : 'jessie',
+    'buster-backports'  : 'buster',
+    'helium'            : 'stretch',
+    'hydrogen'          : 'jessie', # not used
+    'jessie-backports'  : 'jessie',
+    'lithium'           : 'buster',
+    'stretch-backports' : 'stretch',
 }
 
 def get_debian_base_release(bunsenlabs_release: str) -> str:
