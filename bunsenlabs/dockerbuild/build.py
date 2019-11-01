@@ -75,11 +75,13 @@ class PackageSource:
         return os.path.isdir(os.path.join(self.pkgdir, '.git'))
 
 class PackageBuilder:
-    def __init__(self, source: PackageSource, output_dir: str, architecture: str = 'amd64'):
-        self.__source = source
-        self.__output_dir = output_dir
-        self.__docker = docker.from_env(timeout=3600)
+    def __init__(self, source: PackageSource, output_dir: str,
+                 architecture: str = 'amd64', docker_timeout: int = 3600):
         self.__architecture = architecture
+        self.__docker = docker.from_env(timeout=docker_timeout)
+        self.__docker_wait_timeout = docker_timeout
+        self.__output_dir = output_dir
+        self.__source = source
         logger.info('Source ID for this build: %s', self.source.source_id)
 
     def create_dependency_image(self):
@@ -97,7 +99,7 @@ class PackageBuilder:
             volumes = self.docker_volumes,
         )
         logger.info('Container %s launched, waiting for exit...', container.id)
-        status = container.wait(timeout=3600)
+        status = container.wait(timeout=self.__docker_wait_timeout)
         if not (status.get('Error') is None and status.get('StatusCode') == 0):
             logger.error('Container failed with non-zero exit status: %s', status.get('Error'))
             raise Exception('Container run failed')
@@ -129,7 +131,7 @@ class PackageBuilder:
             volumes=volumes
         )
         logging.info('Container launched: %s', container.id)
-        status = container.wait(timeout=3600)
+        status = container.wait(timeout=self.__docker_wait_timeout)
         if not (status.get('Error') is None and status.get('StatusCode') == 0):
             logger.error('Container failed with exit status: %d', status.get('StatusCode'))
             logger.error('Error string: %s', status.get('Error'))
@@ -186,9 +188,16 @@ class PackageBuilder:
 
 def build(opts):
     logger.info('Beginning package build.')
+
     logger.info('Initializing source object')
     source = PackageSource(pkgdir=opts.source)
+
     logger.info('Initializing builder object')
-    builder = PackageBuilder(source, opts.output, architecture = opts.architecture)
+    builder = PackageBuilder(
+        source, opts.output,
+        architecture=opts.architecture,
+        docker_timeout=opts.timeout,
+    )
+
     logger.info('Beginning build process')
     builder.build()

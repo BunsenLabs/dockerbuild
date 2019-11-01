@@ -13,3 +13,6 @@ options:
   - names: [ '--architecture', '-a' ]
     choices: [ 'amd64', 'i386' ]
     default: 'amd64'
+  - names: [ '--timeout', '-t' ]
+    type: !!python/name:builtins.int ''
+    default: 3600
