@@ -1,8 +1,3 @@
-# Inside the Docker container
-# Install build dependencies
-# Create the source tarball (parse changelog in the process)
-# Build package (dpkg-buildpackage)
-# Get package output
 from bunsenlabs.dockerbuild import CONTAINERSCRIPTSPATH
 from bunsenlabs.utils.release import get_debian_base_release
 from dataclasses import dataclass
@@ -16,6 +11,13 @@ import re
 logger = logging.getLogger(name=__name__)
 
 @dataclass
+class PackageSourceArchive:
+    packagename: str
+    version: str
+    filename: str
+    filedata: str
+
+@dataclass
 class PackageSource:
     pkgdir: str
     controlpath: str = None
@@ -25,6 +27,13 @@ class PackageSource:
         self.pkgdir = os.path.abspath(self.pkgdir)
         self.controlpath = os.path.join(self.pkgdir, 'debian', 'control')
         self.changelogpath = os.path.join(self.pkgdir, 'debian', 'changelog')
+
+    def archive(self) -> PackageSourceArchive:
+        filename = f'{self.name}_{self.release_upstream_version}.orig.tar.gz'
+        if self.is_git:
+            pass
+        else:
+            pass
 
     @property
     def changelog(self):
@@ -62,6 +71,10 @@ class PackageSource:
     def source_id(self):
         return f'{self.release_debian_distro}:{self.control_hash}'
 
+    @property
+    def is_git(self):
+        return os.path.isdir(os.path.join(self.pkgdir, '.git'))
+
 class PackageBuilder:
     def __init__(self, source: PackageSource, output_dir: str, architecture: str = 'amd64'):
         self.__source = source
@@ -86,7 +99,7 @@ class PackageBuilder:
                 volumes = self.docker_volumes,
         )
         logger.info('Container %s launched, waiting for exit...', container.id)
-        status = container.wait(timeout=3600):
+        status = container.wait(timeout=3600)
         if not (status.get('Error') is None and status.get('StatusCode') == 0):
             logger.error('Container failed with non-zero exit status: %s', status.get('Error'))
             raise Exception('Container run failed')
@@ -178,6 +191,6 @@ def build(opts):
     logger.info('Initializing source object')
     source = PackageSource(pkgdir=opts.source)
     logger.info('Initializing builder object')
-    builder = PackageBuilder(source, opts.output)
+    builder = PackageBuilder(source, opts.output, architecture = opts.architecture)
     logger.info('Beginning build process')
     builder.build()
