@@ -79,7 +79,7 @@ class PackageBuilder:
     def __init__(self, source: PackageSource, output_dir: str, architecture: str = 'amd64'):
         self.__source = source
         self.__output_dir = output_dir
-        self.__docker = docker.from_env()
+        self.__docker = docker.from_env(timeout=3600)
         self.__architecture = architecture
         logger.info('Source ID for this build: %s', self.source.source_id)
 
