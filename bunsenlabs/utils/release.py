@@ -1,5 +1,3 @@
-from typing import Optional
-
 RELEASE_MAP = {
     'beryllium'         : 'buzz',
     'bunsen-hydrogen'   : 'jessie',

@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(
-        name = "bl-dockerbuild",
+        name = "bunsenlabs",
         version = "1.0.6",
         install_requires = [
                 "PyYAML>=5.1.0",
@@ -13,7 +13,7 @@ setup(
         packages = find_packages(),
         entry_points={
                 "console_scripts": [
-                        "dockerbuild = bunsenlabs.dockerbuild.cli.main"
+                        "dockerbuild = bunsenlabs.dockerbuild.cli:main"
                 ]
         },
         author = "Jens John",

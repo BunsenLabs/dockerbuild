@@ -6,7 +6,6 @@ import docker
 import hashlib
 import logging
 import os
-import re
 
 logger = logging.getLogger(name=__name__)
 
@@ -28,12 +27,12 @@ class PackageSource:
         self.controlpath = os.path.join(self.pkgdir, 'debian', 'control')
         self.changelogpath = os.path.join(self.pkgdir, 'debian', 'changelog')
 
-    def archive(self) -> PackageSourceArchive:
-        filename = f'{self.name}_{self.release_upstream_version}.orig.tar.gz'
-        if self.is_git:
-            pass
-        else:
-            pass
+#    def archive(self) -> PackageSourceArchive:
+#        filename = f'{self.name}_{self.release_upstream_version}.orig.tar.gz'
+#        if self.is_git:
+#            pass
+#        else:
+#            pass
 
     @property
     def changelog(self):
@@ -87,16 +86,15 @@ class PackageBuilder:
         """ Creates a Docker layer that contains the build dependencies of the
         source package preinstalled. """
         image = self.find_dependency_image()
-        image_tag = f'{self.source.name}:latest'
         if image is not None:
             return image
         logger.info('Building dependency image...')
         container = self.__docker.containers.run(
-                self.docker_base_image,
-                command = '/mnt/containerscripts/installdependencies.sh',
-                detach  = True,
-                labels  = self.docker_labels,
-                volumes = self.docker_volumes,
+            self.docker_base_image,
+            command = '/mnt/containerscripts/installdependencies.sh',
+            detach  = True,
+            labels  = self.docker_labels,
+            volumes = self.docker_volumes,
         )
         logger.info('Container %s launched, waiting for exit...', container.id)
         status = container.wait(timeout=3600)
@@ -125,10 +123,10 @@ class PackageBuilder:
         })
         logging.info('Using build container volumes: %s', volumes)
         container = self.__docker.containers.run(
-                image,
-                command='/mnt/containerscripts/build.sh',
-                detach=True,
-                volumes=volumes
+            image,
+            command='/mnt/containerscripts/build.sh',
+            detach=True,
+            volumes=volumes
         )
         logging.info('Container launched: %s', container.id)
         status = container.wait(timeout=3600)

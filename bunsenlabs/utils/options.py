@@ -9,8 +9,7 @@ def getopts(option_file: str, environment_namespace: str = "BL") -> argparse.Nam
             key = "{}_{}".format(environment_namespace, opt)
             if key in os.environ:
                 return os.environ[key]
-            else:
-                return local_preference
+            return local_preference
         seq = loader.construct_sequence(node)
         return __env(*seq)
 
@@ -19,9 +18,9 @@ def getopts(option_file: str, environment_namespace: str = "BL") -> argparse.Nam
         options = yaml.load(FILE, Loader=yaml.FullLoader)
 
     parser = argparse.ArgumentParser(description=options.get("program_description"),
-                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     for opt in options.get("options"):
         parser.add_argument(*opt["names"], **{k:v for k,v in opt.items() if k != 'names'})
-    
+
     return parser.parse_args()
