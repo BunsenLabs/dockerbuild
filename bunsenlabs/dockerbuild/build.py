@@ -34,7 +34,8 @@ class PackageBuilder:
         if not (status.get('Error') is None and status.get('StatusCode') == 0):
             logger.error('Container failed with non-zero exit status: %s', status.get('Error'))
             raise Exception('Container run failed')
-        container.commit(repository='blsrc')
+        container.commit()
+        container.remove()
         return self.find_dependency_image()
 
     def find_dependency_image(self):
