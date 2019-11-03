@@ -51,7 +51,7 @@ class PackageBuilder:
         logger.info('No image found')
         return None
 
-    def build(self):
+    def build(self) -> None:
         image = self.create_dependency_image()
         logging.info('Using dependency image: %s', image.id)
         volumes = self.docker_volumes
@@ -81,11 +81,11 @@ class PackageBuilder:
         container.remove()
 
     @property
-    def source(self):
+    def source(self) -> PackageSource:
         return self.__source
 
     @property
-    def docker_labels(self):
+    def docker_labels(self) -> dict:
         return {
             'BL_BUILD_ARCH': self.architecture,
             'BL_SOURCE_ID': self.source.source_id,
@@ -94,14 +94,14 @@ class PackageBuilder:
         }
 
     @property
-    def docker_dependency_image_filter(self):
+    def docker_dependency_image_filter(self) -> dict:
         return { 'label': [
             f'BL_SOURCE_ID={self.source.source_id}',
             f'BL_BUILD_ARCH={self.architecture}',
         ]}
 
     @property
-    def docker_volumes(self):
+    def docker_volumes(self) -> dict:
         return {
             CONTAINERSCRIPTSPATH: {
                 'bind': '/mnt/containerscripts',
@@ -114,11 +114,11 @@ class PackageBuilder:
         }
 
     @property
-    def architecture(self):
+    def architecture(self) -> str:
         return self.__architecture
 
     @property
-    def docker_base_image(self):
+    def docker_base_image(self) -> str:
         docker_repo = DEBIAN_DOCKER_ARCH_MAP.get(self.architecture, '')
         if len(docker_repo) > 0:
             docker_repo += '/'
