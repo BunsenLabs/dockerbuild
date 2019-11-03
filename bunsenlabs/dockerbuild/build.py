@@ -3,6 +3,12 @@ from bunsenlabs.dockerbuild.package.source import PackageSource
 import docker
 import logging
 
+DEBIAN_DOCKER_ARCH_MAP = {
+    'amd64': '',
+    'i386':  'i386',
+    'armhf': 'arm32v7'
+}
+
 logger = logging.getLogger(name=__name__)
 
 class PackageBuilder:
@@ -113,10 +119,10 @@ class PackageBuilder:
 
     @property
     def docker_base_image(self):
-        prefix = ''
-        if self.architecture == 'i386':
-            prefix = 'i386/'
-        return '{}debian:{}'.format(prefix, self.source.release_debian_distro)
+        docker_repo = DEBIAN_DOCKER_ARCH_MAP.get(self.architecture, '')
+        if len(docker_repo) > 0:
+            docker_repo += '/'
+        return '{}debian:{}'.format(docker_repo, self.source.release_debian_distro)
 
 def build(opts):
     logger.info('Beginning package build.')

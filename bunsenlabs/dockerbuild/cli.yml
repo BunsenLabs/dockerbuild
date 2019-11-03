@@ -11,7 +11,7 @@ options:
     help: |
       Output directory. Will be created if it does not exist.
   - names: [ '--architecture', '-a' ]
-    choices: [ 'amd64', 'i386' ]
+    choices: [ 'amd64', 'i386', 'armhf' ]
     default: 'amd64'
   - names: [ '--timeout', '-t' ]
     type: !!python/name:builtins.int ''
