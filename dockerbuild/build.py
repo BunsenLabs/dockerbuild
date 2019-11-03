@@ -1,5 +1,5 @@
-from bunsenlabs.dockerbuild import CONTAINERSCRIPTSPATH
-from bunsenlabs.dockerbuild.package.source import PackageSource
+from dockerbuild import CONTAINERSCRIPTSPATH
+from dockerbuild.package.source import PackageSource
 import docker
 import logging
 

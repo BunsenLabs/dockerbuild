@@ -1,4 +1,4 @@
-from bunsenlabs.utils.release import get_debian_base_release
+from dockerbuild.utils.release import get_debian_base_release
 from dataclasses import dataclass
 from debian.changelog import Changelog
 import hashlib
