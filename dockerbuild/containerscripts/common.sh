@@ -41,9 +41,14 @@ xinstall () {
 
 xinit () {
   trap xcleanup EXIT
-  cat >/etc/apt/sources.list.d/sources.list <<<"
+  if (( $VERSION_ID <= 8 )); then
+    cat >/etc/apt/sources.list.d/sources.list <<<"
+deb-src http://archive.debian.org/debian/ ${VERSION_CODENAME} main contrib non-free";
+  else
+    cat >/etc/apt/sources.list.d/sources.list <<<"
 deb-src http://deb.debian.org/debian/ ${VERSION_CODENAME} main contrib non-free
 deb-src http://security.debian.org/ ${VERSION_CODENAME}/updates main contrib non-free";
+  fi
   apt-get update && apt-get upgrade -y
   return $?
 }
