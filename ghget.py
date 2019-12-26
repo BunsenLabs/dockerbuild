@@ -8,8 +8,6 @@ from pathlib import Path
 from typing import Dict, List, Optional
 import os
 import requests
-import semver
-import shlex
 import shutil
 import sys
 
