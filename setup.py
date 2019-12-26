@@ -9,6 +9,8 @@ setup(
                 "PyYAML>=5.1.0",
                 "docker",
                 "python-debian",
+                "pygithub",
+                "requests",
         ],
         packages = find_packages(),
         entry_points={
@@ -16,6 +18,7 @@ setup(
                         "dockerbuild = dockerbuild.cli:main"
                 ]
         },
+        scripts=['ghget.py'],
         author = "Jens John",
         author_email = "dev@2ion.de",
         description = "Docker-based staged builds of Debian packages",
