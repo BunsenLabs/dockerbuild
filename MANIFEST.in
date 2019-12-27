@@ -1,2 +1,2 @@
-include bunsenlabs/dockerbuild/containerscripts/*
-include bunsenlabs/dockerbuild/cli.yml
+include dockerbuild/containerscripts/*
+include dockerbuild/cli.yml
