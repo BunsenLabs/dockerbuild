@@ -18,7 +18,7 @@ cat >"$SCRIPTDIR"/run.sh <<EOF
 #!/bin/bash
 source "$VENV/bin/activate"
 "\$@"
-exit $?
+exit \$?
 EOF
 
 chown "$OWNER:$OWNER" -- "$SCRIPTDIR"/run.sh
