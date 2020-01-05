@@ -15,7 +15,7 @@ gitbranch=$(xcurrentbranch)
 pkgbase=$(grep ^Source: debian/control|cut -d" " -f2)
 
 git archive --format=tgz "$gitbranch" > ../"${pkgbase}_${lastref}.orig.tar.gz"
-dpkg-buildpackage -F -rfakeroot -us -uc
+dpkg-buildpackage -F -rfakeroot -us -uc -sa
 
 mkdir -p "$OUTDIR/$arch"
 cp -- /tmp/build/*.{deb,dsc,tar.*,changes} "$OUTDIR/$arch"
