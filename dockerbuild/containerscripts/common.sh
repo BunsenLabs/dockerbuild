@@ -42,6 +42,7 @@ xinstall () {
 xinit () {
   trap xcleanup EXIT
   if (( $VERSION_ID <= 8 )); then
+    VERSION_CODENAME=$(<<<"$VERSION" tr -dc '[a-z]')
     cat >/etc/apt/sources.list.d/sources.list <<<"
 deb-src http://archive.debian.org/debian/ ${VERSION_CODENAME} main contrib non-free";
   else
