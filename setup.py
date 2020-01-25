@@ -6,7 +6,6 @@ setup(
         name = "dockerbuild",
         version = "1.0.0",
         install_requires = [
-                "PyYAML>=5.1.0",
                 "docker",
                 "python-debian",
                 "pygithub",

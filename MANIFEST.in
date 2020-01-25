@@ -1,2 +1,1 @@
 include dockerbuild/containerscripts/*
-include dockerbuild/cli.yml
