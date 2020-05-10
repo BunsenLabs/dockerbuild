@@ -1,8 +1,10 @@
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from dockerbuild.build import build
 from functools import partial
 from pathlib import Path
 import os
+
+from dockerbuild.commands.build import build
+from dockerbuild.commands.batch import batch
 
 def main() -> int:
     ap = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
@@ -21,7 +23,9 @@ def main() -> int:
             partial(X, '-t', '--timeout', type=int, default=7200, help='dockerd operation timeout'),
         ],
         'batch': [
-            partial(X, 'jobdescr', type=Path),
+            partial(X, "project_list", nargs='*'),
+            partial(X, "-o", "--output-dir", type=Path, default=Path(os.getcwd())),
+            partial(X, "-b", "--build-dir", type=Path, default=Path(os.getcwd())),
         ],
     }
 

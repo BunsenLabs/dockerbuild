@@ -2,7 +2,6 @@
 from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass, field
 from debian.debian_support import Version, version_compare
-from dockerbuild.build import build
 from functools import cmp_to_key
 from github import Github
 from pathlib import Path
@@ -13,6 +12,8 @@ import os
 import requests
 import shutil
 import sys
+
+from dockerbuild.commands.build import build
 
 @dataclass
 class Buildjob:
@@ -49,13 +50,6 @@ def checktar(tarball: TarFile) -> None:
     for m in tarball.getmembers():
         assert not (m.name[0] in blacklist)
 
-def getopts() -> Namespace:
-    ap = ArgumentParser()
-    ap.add_argument("-o", "--output-dir", type=Path, default=Path(os.getcwd()))
-    ap.add_argument("-b", "--build-dir", type=Path, default=Path(os.getcwd()))
-    ap.add_argument("project_list", nargs='+', default=[])
-    return ap.parse_args()
-
 def getenv(ns: Namespace, *args) -> Namespace:
     for env in args:
         v = os.getenv(env, None)
@@ -64,8 +58,7 @@ def getenv(ns: Namespace, *args) -> Namespace:
         setattr(ns, env, v)
     return ns
 
-def main() -> int:
-    opts = getopts()
+def batch(opts: Namespace) -> int:
     opts = getenv(opts, 'GITHUB_API_TOKEN')
     github = Github(opts.GITHUB_API_TOKEN)
     projects = []
