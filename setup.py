@@ -17,7 +17,6 @@ setup(
                         "dockerbuild = dockerbuild.cli:main"
                 ]
         },
-        scripts=['ghget.py'],
         author = "Jens John",
         author_email = "dev@2ion.de",
         description = "Docker-based staged builds of Debian packages",

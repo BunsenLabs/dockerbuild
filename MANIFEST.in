@@ -1,2 +1,2 @@
 include dockerbuild/containerscripts/*
-include dockerbuild/buildscripts/lithium/*
+include dockerbuild/buildscripts/*

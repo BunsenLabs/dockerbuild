@@ -1,4 +1,1 @@
-docker
-pygithub
-python-debian
-requests
+-e .
