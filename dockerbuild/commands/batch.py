@@ -8,7 +8,9 @@ from pathlib import Path
 from tarfile import TarFile
 from tempfile import TemporaryDirectory
 from typing import Dict, List, Optional
+import fnmatch
 import os
+import re
 import requests
 import shutil
 import sys
@@ -20,24 +22,29 @@ class Buildjob:
     project: str
     tag: str
     architectures: List[str]
-    tarball_url: str = field(default_factory=str)
+    tarball_url: Optional[str] = None
 
-    def resolve(self, github: Github) -> object:
+    def resolve(self, github: Github) -> 'Buildjob':
         repo = github.get_repo(self.project)
         tags = repo.get_tags()
         if tags.totalCount == 0:
             raise ValueError(f'<{self.project}> has no tags')
+        versions = { Version(t.name) : t.tarball_url for t in tags }
+        sorted_versions = sorted(versions.keys(), key=cmp_to_key(version_compare), reverse=True)
+        latest_version = sorted_versions[0]
         if self.tag == '?':
-            versions = sorted(map(lambda t: Version(t.name), tags), key=cmp_to_key(version_compare))
-            self.tag = latest = str(versions[-1])
-            self.tarball_url = list(filter(lambda t: t.name == latest, tags))[0].tarball_url
-            return self
+            self.tag = str(latest_version)
+            self.tarball_url = latest_version.tarball_url
         else:
-            for t in tags:
-                if self.tag == t.name:
-                    self.tarball_url = t.tarball_url
-            return self
-        raise KeyError(f'could not resolve or validate tag for project: {self.project}:{self.tag}')
+            regex = re.compile(fnmatch.translate(self.tag))
+            for v in sorted_versions:
+                _v = str(v)
+                if regex.match(_v):
+                    self.tag = _v
+                    self.tarball_url = versions[v]
+        if self.tarball_url is None:
+            raise KeyError(f'could not resolve or validate tag for project: {self.project}:{self.tag}')
+        return self
 
 def namespace(**kwargs) -> Namespace:
     ns = Namespace()
