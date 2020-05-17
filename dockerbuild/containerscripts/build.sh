@@ -14,7 +14,8 @@ lastref=$(xupstreamversion)
 gitbranch=$(xcurrentbranch)
 pkgbase=$(grep ^Source: debian/control|cut -d" " -f2)
 
-git archive --format=tgz "$gitbranch" > ../"${pkgbase}_${lastref}.orig.tar.gz"
+git archive --format=tgz "$gitbranch" > ../"${pkgbase}_${lastref}.orig.tar"
+xz ../"${pkgbase}_${lastref}.orig.tar"
 dpkg-buildpackage -F -rfakeroot -us -uc -sa
 
 mkdir -p "$OUTDIR/$arch"
