@@ -50,6 +50,8 @@ deb-src http://archive.debian.org/debian/ ${VERSION_CODENAME} main contrib non-f
 deb-src http://deb.debian.org/debian/ ${VERSION_CODENAME} main contrib non-free
 deb-src http://security.debian.org/ ${VERSION_CODENAME}/updates main contrib non-free";
   fi
+  # Prevent automatic building of man pages
+  echo "man-db man-db/auto-update boolean false" | debconf-set-selections
   apt-get update && apt-get upgrade -y
   return $?
 }
