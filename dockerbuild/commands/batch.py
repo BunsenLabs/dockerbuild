@@ -14,8 +14,11 @@ import re
 import requests
 import shutil
 import sys
+import logging
 
 from dockerbuild.commands.build import build
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class Buildjob:
@@ -70,7 +73,7 @@ def batch(opts: Namespace) -> int:
     github = Github(opts.GITHUB_API_TOKEN)
     projects = []
 
-    print('Parsing project list...')
+    logger.info('Parsing project list...')
     # <project>:<tag>:<architectures>
     for p in opts.project_list:
         delim = p.count(':')
@@ -84,11 +87,12 @@ def batch(opts: Namespace) -> int:
             project = p
             tag = '?'
             architectures = ['amd64']
-        projects.append(Buildjob(project=project,
+        projects.append(Buildjob(
+            project=project,
             tag=tag, architectures=architectures).resolve(github))
 
 
-    print('Downloading tarballs...')
+    logger.info('Downloading tarballs...')
     local_jobs = {}
     session = requests.Session()
     session.mount('https://', requests.adapters.HTTPAdapter(pool_connections=4))
@@ -101,11 +105,11 @@ def batch(opts: Namespace) -> int:
             req = session.get(tarball_url, stream=True)
             req.raw.decode_content = True # gunzip
             shutil.copyfileobj(req.raw, FILE)
-        print(f'DOWNLOAD OK: {project} => {output_path}')
+        logger.info(f'DOWNLOAD OK: {project} => {output_path}')
         local_jobs[project] = output_path
 
 
-    print('Building projects...')
+    logger.info('Building projects...')
     for project, tarball_path in local_jobs.items():
         with TemporaryDirectory() as DIR:
             with TarFile(tarball_path) as TAR:

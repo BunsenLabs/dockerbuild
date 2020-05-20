@@ -5,9 +5,13 @@ import os
 
 from dockerbuild.commands.build import build
 from dockerbuild.commands.batch import batch
+from dockerbuild import enable_debug_logging
 
 def main() -> int:
     ap = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+
+    ap.add_argument("-d", "--debug", action="store_true", default=False, help="Enable debug output")
+
     sp = ap.add_subparsers()
 
     def X(*args, **kwargs):
@@ -36,6 +40,9 @@ def main() -> int:
             option(parser)
 
     opts = ap.parse_args()
+
+    if opts.debug:
+        enable_debug_logging()
 
     try:
         func = globals()[opts.cmd]
