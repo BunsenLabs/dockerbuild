@@ -52,6 +52,10 @@ deb-src http://security.debian.org/ ${VERSION_CODENAME}/updates main contrib non
   fi
   # Prevent automatic building of man pages
   echo "man-db man-db/auto-update boolean false" | debconf-set-selections
+  # Speed up dpkg. When running containers in parallel on our build machine,
+  # this delivers a huge speed up because the available disk I/O bandwidth is so
+  # low.
+  echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02speedup
   apt-get update && apt-get upgrade -y
   return $?
 }
