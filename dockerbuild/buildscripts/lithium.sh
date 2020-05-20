@@ -18,8 +18,8 @@ PROJECTS=(
   BunsenLabs/bunsen-thunar:10.*:amd64
   BunsenLabs/bunsen-utilities:10.*:amd64
   BunsenLabs/bunsen-welcome:10.*:amd64
-  BunsenLabs/jgmenu:*+bl10-*:amd64,i386,armhf
-  BunsenLabs/tint2:*+bl10-*:amd64,i386,armhf
+  BunsenLabs/jgmenu:*+bl10-*:amd64,i386,armhf,arm64
+  BunsenLabs/tint2:*+bl10-*:amd64,i386,armhf,arm64
 )
 
 exec dockerbuild batch "${PROJECTS[@]}"

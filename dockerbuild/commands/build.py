@@ -6,7 +6,8 @@ import logging
 DEBIAN_DOCKER_ARCH_MAP = {
     'amd64': '',
     'i386':  'i386',
-    'armhf': 'arm32v7'
+    'armhf': 'arm32v7',
+    'arm64': 'arm64v8',
 }
 
 logger = logging.getLogger(name=__name__)

@@ -21,7 +21,7 @@ def main() -> int:
 
     iface = {
         'build': [
-            partial(X, '-a', '--architecture', choices=['amd64','i386','armhf'], default='amd64', help='buildarch'),
+            partial(X, '-a', '--architecture', choices=['amd64','i386','armhf','arm64'], default='amd64', help='buildarch'),
             partial(X, '-o', '--output', type=Path, default=Path(os.getcwd()), help='destdir'),
             partial(X, '-s', '--source', required=True, type=Path, help='srcdir'),
             partial(X, '-t', '--timeout', type=int, default=7200, help='dockerd operation timeout'),
