@@ -20,7 +20,7 @@ class PackageBuilder:
         self.__docker_wait_timeout = docker_timeout
         self.__output_dir = output_dir
         self.__source = source
-        logger.info('Source ID for this build: %s', self.source.source_id)
+        logger.info('Using source with name=%s id=%s', self.source.name, self.source.source_id)
 
     def create_dependency_image(self):
         """ Creates a Docker layer that contains the build dependencies of the

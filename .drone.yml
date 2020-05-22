@@ -3,7 +3,8 @@ type: docker
 name: default
 
 steps:
-  - name: debug
-    image: ubuntu:18.04
+  - name: test
+    image: python:3.7
     commands:
-      - env
+      - pip install tox
+      - tox -e py
