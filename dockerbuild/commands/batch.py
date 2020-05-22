@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-from argparse import ArgumentParser, Namespace
-from dataclasses import dataclass, field
+from argparse import Namespace
+from dataclasses import dataclass
 from debian.debian_support import Version, version_compare
 from functools import cmp_to_key
 from github import Github
-from pathlib import Path
 from tarfile import TarFile
 from tempfile import TemporaryDirectory
-from typing import Dict, List, Optional
+from typing import List, Optional
 import fnmatch
 import os
 import re
@@ -117,6 +116,3 @@ def batch(opts: Namespace) -> int:
                 TAR.extractall(path=DIR)
 
     return 0
-
-if __name__ == "__main__":
-    sys.exit(main())

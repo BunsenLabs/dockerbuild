@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from debian.changelog import Changelog
 from dockerbuild.utils.release import get_debian_base_release
-from typing import Optional
 import hashlib
 import os
 
