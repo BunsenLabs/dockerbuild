@@ -2,6 +2,7 @@
 
 """ Enumerate process capabilities from procfs, on Linux """
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Tuple, Set
 
@@ -49,15 +50,37 @@ CAPABILITIES = {
 }
 
 FULLCAP = 0x3FFFFFFFFF
+FULLCAP_SET = set(CAPABILITIES.values())
 
-def get_process_capabilities(pid: int) -> Tuple[Set[str], Set[int]]:
+class CapsUnsupportedError(OSError):
+    pass
+
+class CapsProcessNotFoundError(KeyError):
+    pass
+
+@dataclass
+class ProcessCapabilities:
+    pid: int
+    effective_caps: Set[str]
+    unknown_effective_caps: Set[int]
+
+def has_caps(pid: int, caps: set) -> bool:
+    _caps = get_process_capabilities(pid)
+    return _caps.effective_caps & caps == caps
+
+def get_process_capabilities(pid: int) -> ProcessCapabilities:
     """ On Linux, return a set of all the capabilities the given PID has. The second return tuple
     item is a set of the hex values of all unknown capability values found. This set should be empty
     if this function is implemented correctly for the given kernel. As the list of caps may be
     expanded in the future, on some kernels, the second set may not be empty. """
+
     if not PROCFS.exists():
-        raise NotImplementedError("procfs not found at /proc -- require procfs at that location")
-    status = Path(f"/proc/{pid}/status")
+        raise CapsUnsupportedError("procfs not found at {PROCFS} -- require procfs at that location")
+
+    status = PROCFS / str(pid) / "status"
+
+    if not status.is_file():
+        raise CapsProcessNotFoundError(f"{status} not found -- process may have terminated")
 
     effective_caps = set()
     unknown_effective_caps = set()
@@ -65,14 +88,23 @@ def get_process_capabilities(pid: int) -> Tuple[Set[str], Set[int]]:
     with status.open("r") as FILE:
         for line in FILE:
             if line.startswith("CapEff"):
-                fields = line.split(" ", 1)
+                caps_field = line[:-1].split(chr(0x09), 1)[-1]
+                assert len(caps_field) > 0, "CapEff field in {status} in unexpected format: {caps}"
                 caps = int(line[:-1].split(chr(0x09), 1)[-1], 16)
+
                 if caps == FULLCAP:
-                    return set(CAPABILITIES.values()), unknown_effective_caps
+                    effective_capabilities = FULLCAP_SET
+                    break
+
                 for i in range(0, 64, 1):
                     if ((caps >> i) & 0x1) == 1:
                         if capstr := CAPABILITIES.get(i, None):
                             effective_caps.add(capstr)
                         else:
                             unknown_effective_caps.add(i)
-    return effective_caps, unknown_effective_caps
+
+    return ProcessCapabilities(
+            pid = pid,
+            effective_caps = effective_caps,
+            unknown_effective_caps = unknown_effective_caps,
+    )
