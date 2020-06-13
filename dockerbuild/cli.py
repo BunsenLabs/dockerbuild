@@ -7,7 +7,11 @@ from dockerbuild.commands.build import build
 from dockerbuild.commands.batch import batch
 from dockerbuild import enable_debug_logging
 
+
 def main() -> int:
+    def absolute_path(path: Path) -> Path:
+        return path.absolute()
+
     ap = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 
     ap.add_argument("-d", "--debug", action="store_true", default=False, help="Enable debug output")
@@ -22,14 +26,14 @@ def main() -> int:
     iface = {
         'build': [
             partial(X, '-a', '--architecture', choices=['amd64','i386','armhf','arm64'], default='amd64', help='buildarch'),
-            partial(X, '-o', '--output', type=Path, default=Path(os.getcwd()), help='destdir'),
-            partial(X, '-s', '--source', required=True, type=Path, help='srcdir'),
+            partial(X, '-o', '--output', type=absolute_path, default=Path(os.getcwd()), help='destdir'),
+            partial(X, '-s', '--source', required=True, type=absolute_path, help='srcdir'),
             partial(X, '-t', '--timeout', type=int, default=7200, help='dockerd operation timeout'),
         ],
         'batch': [
             partial(X, "project_list", nargs='*'),
-            partial(X, "-o", "--output-dir", type=Path, default=Path(os.getcwd())),
-            partial(X, "-b", "--build-dir", type=Path, default=Path(os.getcwd())),
+            partial(X, "-o", "--output-dir", type=absolute_path, default=Path(os.getcwd())),
+            partial(X, "-b", "--build-dir", type=absolute_path, default=Path(os.getcwd())),
         ],
     }
 
