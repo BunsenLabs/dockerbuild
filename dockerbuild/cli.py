@@ -1,7 +1,8 @@
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from functools import partial
 from pathlib import Path
-import os
+import logging
+import os, pwd, grp
 
 from dockerbuild.commands.build import build
 from dockerbuild.commands.batch import batch
@@ -15,6 +16,8 @@ def main() -> int:
     ap = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 
     ap.add_argument("-d", "--debug", action="store_true", default=False, help="Enable debug output")
+    ap.add_argument("--unpriv-user", default="nobody", type=str, help="Privdrop to this user for untrusted operations")
+    ap.add_argument("--unpriv-group", default="nobody", type=str, help="Privdrop to this group for untrusted operations")
 
     sp = ap.add_subparsers()
 
@@ -47,6 +50,18 @@ def main() -> int:
 
     if opts.debug:
         enable_debug_logging()
+
+    logger = logging.getLogger(__name__)
+
+    try:
+        passwd_ent = pwd.getpwnam(opts.unpriv_user)
+        groups_ent = grp.getgrnam(opts.unpriv_group)
+        setattr(opts, "unpriv_uid", passwd_ent[2])
+        setattr(opts, "unpriv_gid", groups_ent[2])
+        logger.debug("Resolved unpriv-{user,group}: %d:%d", opts.unpriv_uid, opts.unpriv_gid)
+    except KeyError as err:
+        logger.error('UID/GID not found in passwd/groups database: %s', err)
+        return 1
 
     try:
         func = globals()[opts.cmd]
