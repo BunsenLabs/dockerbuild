@@ -125,4 +125,3 @@ class PackageBuilder:
         if len(docker_repo) > 0:
             docker_repo += '/'
         return '{}debian:{}'.format(docker_repo, self.source.release_debian_distro)
-

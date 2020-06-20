@@ -1,5 +1,4 @@
 from argparse import Namespace
-from functools import partial
 from multiprocessing import Process
 from pathlib import Path
 from typing import Callable
@@ -31,7 +30,7 @@ class DownloadAgent:
         if has_caps(os.getpid(), set([ 'CAP_SETUID' ])):
             logger.debug("Have CAP_SETUID, preparing privdrop for UID")
             _setuid = lambda: os.setuid(self.__opts.unpriv_uid)
-            shutil.chown(dest, owner=self.__opts.unpriv_uid)
+            shutil.chown(dest, user=self.__opts.unpriv_uid)
             dest.chmod(dest.stat().st_mode | 0o00700)
             logger.debug("Changed mode of <%s> to %o for setuid download", dest, dest.stat().st_mode)
 
@@ -40,7 +39,7 @@ class DownloadAgent:
             return False
 
         if not parent.is_dir():
-            logger.error('Download destination parent is not a directory: %s', dedst)
+            logger.error('Download destination parent is not a directory: %s', dest)
             return False
 
         p = Process(target=self.__get, args=(_setgid, _setuid, url, dest,))

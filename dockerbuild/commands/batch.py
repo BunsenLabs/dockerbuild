@@ -17,6 +17,8 @@ from debian.debian_support import Version, version_compare
 from github import Github
 import requests
 
+from dockerbuild.download_agent import DownloadAgent
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -86,6 +88,7 @@ def download_and_extract_tarball(tarball_url: str, output_path: Path, uid: int, 
             raise OSError("Failed to set UID: {uid}")
 
 def batch(opts: Namespace) -> int:
+    agent = DownloadAgent(opts)
     opts = getenv(opts, 'GITHUB_API_TOKEN')
     github = Github(opts.GITHUB_API_TOKEN)
     buildjobs = []
@@ -110,18 +113,11 @@ def batch(opts: Namespace) -> int:
 
     logger.info('Downloading tarballs...')
     local_jobs = {}
-    session = requests.Session()
-    session.mount('https://', requests.adapters.HTTPAdapter(pool_connections=4))
     for job in buildjobs:
-        logger.info('Downloading tarball of job: %s', job)
         output_filename = f'{job.name}_{job.version.upstream_version}.tar.gz'
         output_path = opts.output_dir / output_filename
-        with output_path.open('wb') as FILE:
-            response = session.get(job.tarball_url, stream=True)
-            response.raw.decode_content = True # gunzip
-            shutil.copyfileobj(response.raw, FILE)
+        assert agent.download(job.tarball_url, output_path), "Download failed: {} to {}".format(job.tarball_url, output_path)
         local_jobs[job] = output_path
-        logger.info('Download successful, local file: %s', output_path)
 
     logger.info('Building projects...')
     for job, tarball_path in local_jobs.items():

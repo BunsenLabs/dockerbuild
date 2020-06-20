@@ -4,7 +4,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple, Set
+from typing import Set
 
 PROCFS = Path("/proc")
 
@@ -93,7 +93,7 @@ def get_process_capabilities(pid: int) -> ProcessCapabilities:
                 caps = int(line[:-1].split(chr(0x09), 1)[-1], 16)
 
                 if caps == FULLCAP:
-                    effective_capabilities = FULLCAP_SET
+                    effective_caps = FULLCAP_SET
                     break
 
                 for i in range(0, 64, 1):
@@ -104,7 +104,7 @@ def get_process_capabilities(pid: int) -> ProcessCapabilities:
                             unknown_effective_caps.add(i)
 
     return ProcessCapabilities(
-            pid = pid,
-            effective_caps = effective_caps,
-            unknown_effective_caps = unknown_effective_caps,
+        pid = pid,
+        effective_caps = effective_caps,
+        unknown_effective_caps = unknown_effective_caps,
     )

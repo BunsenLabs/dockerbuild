@@ -1,6 +1,5 @@
 import logging
 
-from dockerbuild import CONTAINERSCRIPTSPATH
 from dockerbuild.package.builder import PackageBuilder
 from dockerbuild.package.source import PackageSource
 

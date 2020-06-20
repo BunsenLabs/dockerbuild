@@ -1,13 +1,14 @@
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from functools import partial
 from pathlib import Path
+import grp
 import logging
-import os, pwd, grp
+import os
+import pwd
 
 from dockerbuild.commands.build import build
 from dockerbuild.commands.batch import batch
 from dockerbuild import enable_debug_logging
-
 
 def main() -> int:
     def absolute_path(path: Path) -> Path:
