@@ -1,6 +1,7 @@
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from functools import partial
 from pathlib import Path
+from typing import Union
 import os
 
 from dockerbuild.commands.build import build
@@ -9,8 +10,9 @@ from dockerbuild import enable_debug_logging
 
 
 def main() -> int:
-    def absolute_path(path: Path) -> Path:
-        return path.absolute()
+    def absolute_path(path: Union[Path, str]) -> Path:
+        _path = Path(path) if isinstance(path, str) else path
+        return _path.absolute()
 
     ap = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 
