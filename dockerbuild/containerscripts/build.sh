@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
-SCRIPTDIR=$(readlink -f "$(dirname "$0")")
+readonly SCRIPTDIR=$(readlink -f "$(dirname "$0")")
+
+# shellcheck source=./common.sh
 source "$SCRIPTDIR"/common.sh
 
 mkdir -p /tmp/build
 cp -r -- /mnt/package /tmp/build
-cd /tmp/build/package
+
+cd /tmp/build/package || xdie "Failed to chdir into /tmp/build/package"
 
 xgitclean
 

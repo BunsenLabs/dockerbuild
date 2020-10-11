@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-SCRIPTDIR=$(readlink -f "$(dirname "$0")")
+readonly SCRIPTDIR=$(readlink -f "$(dirname "$0")")
 
+# shellcheck source=./common.sh
 source "$SCRIPTDIR"/common.sh
 
 xinstall devscripts git

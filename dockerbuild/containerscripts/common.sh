@@ -9,6 +9,12 @@ export DEBIAN_FRONTEND=noninteractive
 
 source /etc/os-release
 
+xdie () {
+  local msg=$1
+  printf "ERROR: %s\nABORT.\n" "$msg"
+  exit 2
+}
+
 xgitclean () {
   git clean -d -f
 }
@@ -18,7 +24,8 @@ xarch () {
 }
 
 xupstreamversion () {
-  local lastref=$(git describe --tags --abbrev=0)
+  local lastref
+  lastref=$(git describe --tags --abbrev=0)
   lastref=${lastref%-*}
   echo "$lastref"
 }
@@ -41,8 +48,8 @@ xinstall () {
 
 xinit () {
   trap xcleanup EXIT
-  if (( $VERSION_ID <= 8 )); then
-    VERSION_CODENAME=$(<<<"$VERSION" tr -dc '[a-z]')
+  if (( VERSION_ID <= 8 )); then
+    VERSION_CODENAME=$(<<<"$VERSION" tr -dc 'a-z')
     cat >/etc/apt/sources.list.d/sources.list <<<"
 deb-src http://archive.debian.org/debian/ ${VERSION_CODENAME} main contrib non-free";
   else
