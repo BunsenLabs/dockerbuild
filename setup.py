@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
         name = "dockerbuild",
-        version = "1.0.0",
+        version = "1.0.1",
         install_requires = [
                 "docker",
                 "python-debian",
