@@ -61,3 +61,7 @@ class PackageSource:
     @property
     def is_git(self) -> bool:
         return os.path.isdir(os.path.join(self.pkgdir, '.git'))
+
+    @property
+    def is_backport(self) -> bool:
+        return "backports" in self.release_debian_distro

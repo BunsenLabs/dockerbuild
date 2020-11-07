@@ -1,7 +1,12 @@
+from typing import Any
+from functools import cached_property
+import dataclasses
+import logging
+
 from dockerbuild import CONTAINERSCRIPTSPATH
 from dockerbuild.package.source import PackageSource
+
 import docker
-import logging
 
 DEBIAN_DOCKER_ARCH_MAP = {
     'amd64': '',
@@ -11,6 +16,16 @@ DEBIAN_DOCKER_ARCH_MAP = {
 }
 
 logger = logging.getLogger(name=__name__)
+
+@dataclass
+class BuildEnvironment:
+    source_name: str
+    source_upstream_version: str
+    source_package_version: str
+    source_package_distribution: str
+    source_package_debian_distribution: str
+    source_control_hash: str
+    source_is_backport: str
 
 class PackageBuilder:
     def __init__(self, source: PackageSource, output_dir: str,
@@ -31,10 +46,11 @@ class PackageBuilder:
         logger.info('Building dependency image...')
         container = self.__docker.containers.run(
             self.docker_base_image,
-            command = '/mnt/containerscripts/installdependencies.sh',
-            detach  = True,
-            labels  = self.docker_labels,
-            volumes = self.docker_volumes,
+            command     = '/mnt/containerscripts/installdependencies.sh',
+            environment = self.build_environment,
+            detach      = True,
+            labels      = self.docker_labels,
+            volumes     = self.docker_volumes,
         )
         status = self.wait_for_container_exit(container)
         if not (status.get('Error') is None and status.get('StatusCode') == 0):
@@ -71,6 +87,7 @@ class PackageBuilder:
         container = self.__docker.containers.run(
             image,
             command='/mnt/containerscripts/build.sh',
+            environment=self.build_environment,
             detach=True,
             volumes=volumes
         )
@@ -118,6 +135,7 @@ class PackageBuilder:
             }
         }
 
+
     @property
     def architecture(self) -> str:
         return self.__architecture
@@ -128,6 +146,19 @@ class PackageBuilder:
         if len(docker_repo) > 0:
             docker_repo += '/'
         return '{}debian:{}'.format(docker_repo, self.source.release_debian_distro)
+
+    @cached_property
+    def build_environment(self) -> dict:
+        env = BuildEnvironment(
+            source_name: self.__source.name,
+            source_upstream_version: self.__source.upstream_version,
+            source_package_version: self.__source.release_version,
+            source_package_distribution: self.__source.release_distro,
+            source_package_debian_distribution: self.__source.release_debian_distro,
+            source_control_hash: self.__source.control_hash,
+            source_is_backport: "YES" if self.__source.is_backport else "NO"
+        )
+        return dataclasses.asdict(env)
 
 def build(opts):
     logger.info('Beginning package build.')

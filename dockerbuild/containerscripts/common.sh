@@ -42,12 +42,30 @@ xcleanup () {
 }
 
 xinstall () {
-  apt-get install -y "$@"
+  if [[ $source_is_backport = YES ]]; then
+    apt-get install -t "${VERSION_CODENAME}-backports" --no-install-recommends -y "$@"
+  else
+    apt-get install -y --no-install-recommends "$@"
+  fi
+  return $?
+}
+
+xupgrade() {
+  if [[ $source_is_backport = YES ]]; then
+    apt-get upgrade -t "${VERSION_CODENAME}-backports" -y
+  else
+    apt-get upgrade -y
+  fi
   return $?
 }
 
 xinit () {
   trap xcleanup EXIT
+  echo "=================================================="
+  echo " ENVIRONMENT"
+  echo "=================================================="
+  env
+  echo "=================================================="
   if (( VERSION_ID <= 8 )); then
     VERSION_CODENAME=$(<<<"$VERSION" tr -dc 'a-z')
     cat >/etc/apt/sources.list.d/sources.list <<<"
@@ -57,13 +75,18 @@ deb-src http://archive.debian.org/debian/ ${VERSION_CODENAME} main contrib non-f
 deb-src http://deb.debian.org/debian/ ${VERSION_CODENAME} main contrib non-free
 deb-src http://security.debian.org/ ${VERSION_CODENAME}/updates main contrib non-free";
   fi
+  if [[ $VERSION_ID -gt 10 && $source_is_backport = "YES" ]]; then
+    cat >>/etc/apt/sources.list.d/backports.list <<<"
+deb http://deb.debian.org/debian ${VERSION_CODENAME}-backports main
+deb-src http://deb.debian.org/debian ${VERSION_CODENAME}-backports main";
+  fi
   # Prevent automatic building of man pages
   echo "man-db man-db/auto-update boolean false" | debconf-set-selections
   # Speed up dpkg. When running containers in parallel on our build machine,
   # this delivers a huge speed up because the available disk I/O bandwidth is so
   # low.
   echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02speedup
-  apt-get update && apt-get upgrade -y
+  apt-get update && xupgrade
   return $?
 }
 
